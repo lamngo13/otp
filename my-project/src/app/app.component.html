@@ -1,5 +1,5 @@
 <div>
-  <label for="otp">Enter One-Time Pad:</label>
+  <label for="otp">Enter One-Time Pad (COMMA SEPARATED):</label>
   <textarea id="otp" [(ngModel)]="otp" rows="4" cols="50"></textarea>
 </div>
 
@@ -9,8 +9,8 @@
 </div>
 
 <div>
-  <button (click)="shiftRight()">Shift Right</button>
-  <button (click)="shiftLeft()">Shift Left</button>
+  <button (click)="shiftRight()">ENCRYPT</button>
+  <button (click)="shiftLeft()">DECRYPT</button>
 </div>
 
 <div>

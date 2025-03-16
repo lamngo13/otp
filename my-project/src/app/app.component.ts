@@ -3,15 +3,14 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
-  standalone: true, // Ensures it's a standalone component
-  imports: [FormsModule], // Add FormsModule to imports
+  standalone: true,
+  imports: [FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-
 export class AppComponent {
-  otp: string = '';  // Stores the one-time pad numbers
-  inputText: string = '';  // Stores the user input text
+  otp: string = '';  // Comma-separated OTP values (e.g., "3,1,4,1,5")
+  inputText: string = '';  // User input text
   output: string = '';  // Stores the shifted output
 
   shiftRight() {
@@ -24,7 +23,7 @@ export class AppComponent {
 
   private shiftText(text: string, pad: string, right: boolean): string {
     let result = '';
-    let padNumbers = pad.split('').map(char => parseInt(char, 10)).filter(num => !isNaN(num));
+    let padNumbers = pad.split(',').map(char => parseInt(char.trim(), 10)).filter(num => !isNaN(num));
 
     for (let i = 0; i < text.length; i++) {
       let char = text[i];
