@@ -1,18 +1,15 @@
-<div>
-  <label for="otp">Enter One-Time Pad (COMMA SEPARATED):</label>
-  <textarea id="otp" [(ngModel)]="otp" rows="4" cols="50"></textarea>
-</div>
+<div class="container">
+  <label for="otp">One-Time Pad (comma-separated):</label>
+  <textarea id="otp" [(ngModel)]="otp" rows="2" placeholder="e.g., 3,1,4,1,5"></textarea>
 
-<div>
   <label for="inputText">Enter Text:</label>
-  <input id="inputText" [(ngModel)]="inputText" type="text">
-</div>
+  <input id="inputText" [(ngModel)]="inputText" type="text" placeholder="Type here...">
 
-<div>
-  <button (click)="shiftRight()">ENCRYPT</button>
-  <button (click)="shiftLeft()">DECRYPT</button>
-</div>
+  <div class="button-group">
+    <button (click)="shiftRight()">ENCRYPT</button>
+    <button (click)="shiftLeft()">DECRYPT</button>
+  </div>
 
-<div>
-  <p>Output: {{ output }}</p>
+  <label for="output">Output:</label>
+  <textarea id="output" [value]="output" rows="2" readonly></textarea>
 </div>
