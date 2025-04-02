@@ -13,9 +13,6 @@ export class AppComponent {
   inputText: string = '';  // User input text
   output: string = '';  // Stores the shifted output
 
-  private alphabet: string = 'abcdefghijklmnopqrstuvwxyz';
-  private validMax = 77; // 26 * 3 - 1 (ensuring equal distribution)
-
   shiftRight() {
     this.output = this.shiftText(this.inputText, this.otp, true);
   }
@@ -26,14 +23,10 @@ export class AppComponent {
 
   private shiftText(text: string, pad: string, right: boolean): string {
     let result = '';
-    let padNumbers = pad
-      .split(',')
-      .map(num => parseInt(num.trim(), 10))
-      .filter(num => !isNaN(num) && num <= this.validMax) // Remove out-of-range numbers
-      .map(num => Math.floor(num / 3)); // Normalize to 0-25
+    let padNumbers = pad.split(',').map(char => parseInt(char.trim(), 10)).filter(num => !isNaN(num));
 
     for (let i = 0; i < text.length; i++) {
-      let char = text[i].toLowerCase();
+      let char = text[i];
       let shift = padNumbers[i % padNumbers.length] || 0;
       result += this.shiftChar(char, shift, right);
     }
@@ -42,13 +35,46 @@ export class AppComponent {
   }
 
   private shiftChar(char: string, shift: number, right: boolean): string {
-    let index = this.alphabet.indexOf(char);
-    if (index === -1) return char; // Ignore non-alphabetic characters
+    // Handle alphabetic characters (a-z or A-Z)
+    if (char.match(/[a-zA-Z]/)) {
+      return this.shiftAlphabeticChar(char, shift, right);
+    }
+    
+    // Handle numeric characters (0-9)
+    if (char.match(/[0-9]/)) {
+      return this.shiftNumericChar(char, shift);
+    }
+    
+    // If it's neither, just return the character as is (e.g., punctuation, spaces)
+    return char;
+  }
 
-    let newIndex = right
-      ? (index + shift) % 26
-      : (index - shift + 26) % 26;
+  private shiftAlphabeticChar(char: string, shift: number, right: boolean): string {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'; // Hardcoded alphabet
+    const charLower = char.toLowerCase();
+    const index = alphabet.indexOf(charLower);
 
-    return this.alphabet[newIndex];
+    if (index === -1) return char; // If it's not a valid alphabet character, return as is
+
+    const maxShift = 76; // Maximum value for normalization
+    const normalizedShift = Math.floor(shift * 77 / 26) % 26; // Normalize to fit a-z range
+    const shiftAmount = right ? normalizedShift : -normalizedShift;
+    const newIndex = (index + shiftAmount + 26) % 26;
+
+    const shiftedChar = alphabet[newIndex];
+    return char === charLower ? shiftedChar : shiftedChar.toUpperCase();
+  }
+
+  private shiftNumericChar(char: string, shift: number): string {
+    const digits = '0123456789'; // Hardcoded digits (0-9)
+    const index = digits.indexOf(char);
+
+    if (index === -1) return char; // If it's not a valid digit, return as is
+
+    const maxShift = 70; // Maximum value for normalization (for digits 0-9)
+    const normalizedShift = Math.floor(shift * 71 / 10) % 10; // Normalize to fit 0-9 range
+    const newIndex = (index + normalizedShift) % 10;
+
+    return digits[newIndex];
   }
 }
