@@ -13,6 +13,9 @@ export class AppComponent {
   inputText: string = '';  // User input text
   output: string = '';  // Stores the shifted output
 
+  private alphabet: string = 'abcdefghijklmnopqrstuvwxyz';
+  private validMax = 77; // 26 * 3 - 1 (ensuring equal distribution)
+
   shiftRight() {
     this.output = this.shiftText(this.inputText, this.otp, true);
   }
@@ -23,10 +26,14 @@ export class AppComponent {
 
   private shiftText(text: string, pad: string, right: boolean): string {
     let result = '';
-    let padNumbers = pad.split(',').map(char => parseInt(char.trim(), 10)).filter(num => !isNaN(num));
+    let padNumbers = pad
+      .split(',')
+      .map(num => parseInt(num.trim(), 10))
+      .filter(num => !isNaN(num) && num <= this.validMax) // Remove out-of-range numbers
+      .map(num => Math.floor(num / 3)); // Normalize to 0-25
 
     for (let i = 0; i < text.length; i++) {
-      let char = text[i];
+      let char = text[i].toLowerCase();
       let shift = padNumbers[i % padNumbers.length] || 0;
       result += this.shiftChar(char, shift, right);
     }
@@ -35,13 +42,13 @@ export class AppComponent {
   }
 
   private shiftChar(char: string, shift: number, right: boolean): string {
-    if (!char.match(/[a-zA-Z]/)) return char; // Ignore non-alphabetic characters
+    let index = this.alphabet.indexOf(char);
+    if (index === -1) return char; // Ignore non-alphabetic characters
 
-    let base = char >= 'a' ? 97 : 65; // ASCII value of 'a' or 'A'
-    let newChar = right
-      ? String.fromCharCode(base + (char.charCodeAt(0) - base + shift) % 26)
-      : String.fromCharCode(base + (char.charCodeAt(0) - base - shift + 26) % 26);
+    let newIndex = right
+      ? (index + shift) % 26
+      : (index - shift + 26) % 26;
 
-    return newChar;
+    return this.alphabet[newIndex];
   }
 }
