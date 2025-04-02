@@ -42,7 +42,7 @@ export class AppComponent {
     
     // Handle numeric characters (0-9)
     if (char.match(/[0-9]/)) {
-      return this.shiftNumericChar(char, shift);
+      return this.shiftNumericChar(char, shift, right);
     }
     
     // If it's neither, just return the character as is (e.g., punctuation, spaces)
@@ -65,7 +65,7 @@ export class AppComponent {
     return char === charLower ? shiftedChar : shiftedChar.toUpperCase();
   }
 
-  private shiftNumericChar(char: string, shift: number): string {
+  private shiftNumericChar(char: string, shift: number, right: boolean): string {
     const digits = '0123456789'; // Hardcoded digits (0-9)
     const index = digits.indexOf(char);
 
@@ -73,7 +73,8 @@ export class AppComponent {
 
     const maxShift = 70; // Maximum value for normalization (for digits 0-9)
     const normalizedShift = Math.floor(shift * 71 / 10) % 10; // Normalize to fit 0-9 range
-    const newIndex = (index + normalizedShift) % 10;
+    const shiftAmount = right ? normalizedShift : -normalizedShift;
+    const newIndex = (index + shiftAmount + 10) % 10;
 
     return digits[newIndex];
   }
