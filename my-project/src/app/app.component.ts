@@ -9,9 +9,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  otp: string = '';  // Comma-separated OTP values (e.g., "3,1,4,1,5")
-  inputText: string = '';  // User input text
-  output: string = '';  // Stores the shifted output
+  otp: string = '';  
+  inputText: string = ''; 
+  output: string = '';  
 
   shiftRight() {
     this.output = this.shiftText(this.inputText, this.otp, true);
@@ -35,39 +35,38 @@ export class AppComponent {
   }
 
   private shiftChar(char: string, shift: number, right: boolean): string {
-    // Handle alphabetic characters (a-z or A-Z)
+    //TODO this set of functioncalls to shiftAlphabeticChar and shiftNumericChar
+    //could be called recursively to handle distribution
+    //alphabet chars
     if (char.match(/[a-zA-Z]/)) {
       return this.shiftAlphabeticChar(char, shift, right);
     }
     
-    // Handle numeric characters (0-9)
+    // nums
     if (char.match(/[0-9]/)) {
       return this.shiftNumericChar(char, shift, right);
     }
     
-    // If it's neither, just return the character as is (e.g., punctuation, spaces)
+    // return special chars
+    //TODO we COULD account for this (like hard ascii vals) 
+    // but that sounds hard and I don't want to do that
     return char;
   }
 
   private shiftAlphabeticChar(char: string, shift: number, right: boolean): string {
-    //assume number is two digits
-    //TODO honestly we could return nothing (and account for that) if number is outside of set of buckets
-    //yeah we could return outisde of max value prob
-    //ALSO if the char to encode is a num then we can make max num 70 instead of 78 (might be a bit off; have to account for where the index starts)
-    //does it start at 1 or 0?
+    //TODO take out >=? 76 for even distribution
+
     console.log("starting shiftAlphabeticChar with char: " + char + " and shift: " + shift);
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'; // Hardcoded alphabet
     const charLower = char.toLowerCase();
     const index = alphabet.indexOf(charLower) + 1;
-    //TODO maybe important add 1 to start at 1 and not 0
-    //TODO maybe take that out ???
-    // just so its more layperson readable
+    //idk if alphabet.indexOf is case-sensitive but I'm too lazy to check!
+
     console.log("index: " + index);
     console.log("charLower: " + charLower);
 
-    if (index === -1) return char; // If it's not a valid alphabet character, return as is
+    if (index === -1) return char; // for any funky dunky stuff
 
-    //TODO starting rewrite
     //add index to shift amount then mod 26
     var tempShift = shift
     //make negative IFF decrypting
@@ -78,52 +77,51 @@ export class AppComponent {
     //IMPORTANT
     //code index is 0, human is 1, so manually adjust
 
-    //TODO add if statement to check if newIndex is negative (if so, add 26)
+    //if newIndex is negative, add 26 to it to make it positive
+    //this simulates wrapping around the alphabet!!
     if (newIndex < 0) {
-      //TODO add 26 to newIndex to make it positive
       newIndex += 26;
     }
     console.log("newIndex: " + newIndex);
     return alphabet[newIndex];
-    //IMPORTANT
-    //code index is 0, so manually adjust
 
-    // if (char)
-
-    // const maxShift = 76; // Maximum value for normalization
-    // //TODO think about this
-    // //26 * 3 = 78
-    // const normalizedShift = Math.floor(shift * 77 / 26) % 26; // Normalize to fit a-z range
-    // console.log("normalizedShift: " + normalizedShift);
-    // const shiftAmount = right ? normalizedShift : -normalizedShift;
-    // //im pretty sure this above was some stupid ai bs - it should all be positive so whatever
-    // console.log("shiftAmount: " + shiftAmount);
-    // const newIndex = (index + shiftAmount + 26) % 26;
-    // console.log("newIndex: " + newIndex);
-
-    // const shiftedChar = alphabet[newIndex];
-    // console.log("shiftedChar: " + shiftedChar);
-
-    // //ngl copilot wrote this lmao but its just ensuring correct upper/lower case
-    // return char === charLower ? shiftedChar : shiftedChar.toUpperCase();
   }
 
   private shiftNumericChar(char: string, shift: number, right: boolean): string {
+
     const digits = '0123456789'; // Hardcoded digits (0-9)
     const index = digits.indexOf(char);
+    console.log("numIndex: " + index);
 
     if (index === -1) return char; // If it's not a valid digit, return as is
     //prob won't hit this but whatev
 
-    //figure out distribution based on index to not favor any index
-    //TOOD add if
-    //TODO remove all this right stuff and remove ternary operators 
 
-    const maxShift = 70; // Maximum value for normalization (for digits 0-9)
-    const normalizedShift = Math.floor(shift * 71 / 10) % 10; // Normalize to fit 0-9 range
-    const shiftAmount = right ? normalizedShift : -normalizedShift;
-    const newIndex = (index + shiftAmount + 10) % 10;
+    //can we just mod by 10 and that works?
+    //TODO does this work for big numbers??
+    var new_shifted = 0; //just instantiate for now
+    if (right) {
+      new_shifted = (index + shift) % 10;
+    } else {
+      new_shifted = (index - shift) % 10;
+    }
+    //var new_shifted = (shift + index) % 10;
+    console.log("new_shifted: " + new_shifted);
+
+    //TODO idk if this works but we have to account for decrypt with big numbers
+    if (!right) {
+      new_shifted = ((new_shifted)+10) % 10;
+    }
+
+    const newIndex = new_shifted
+    console.log("newIndex: " + newIndex);
 
     return digits[newIndex];
   }
 }
+
+//random notes for page
+//nums are 0-9 inclusive
+//letters are a-z inclusive
+//A is considered index 1 for ur own calcs
+//PHYSICALLY BURN KEY AFTER USE
