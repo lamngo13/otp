@@ -110,7 +110,12 @@ export class AppComponent {
 
   }
 
-  private shiftNumericChar(char: string, shift: number, right: boolean): string {
+  private shiftNumericChar(char: string, shift: number, right: boolean): any {
+    //for even distribution, ignore vals > 90
+    if (shift > 90) {
+      console.log("shift is outside numeric even distribution bucket, recurring...");
+      return null
+    }
 
     const digits = '0123456789'; // Hardcoded digits (0-9)
     const index = digits.indexOf(char);
