@@ -25,11 +25,30 @@ export class AppComponent {
     let result = '';
     let padNumbers = pad.split(',').map(char => parseInt(char.trim(), 10)).filter(num => !isNaN(num));
 
+    var otp_offset = -1; //this is annoying ngl
+    //negative 1 so first iteration is 0
+    //we are ignoring certain otp vals for distribution, and are simply going to next val
     for (let i = 0; i < text.length; i++) {
+      otp_offset++;
       let char = text[i];
-      let shift = padNumbers[i % padNumbers.length] || 0;
-      result += this.shiftChar(char, shift, right);
-    }
+      let shift = padNumbers[otp_offset % padNumbers.length] || 0;
+      //TODO WE NEED to account for shift amnt outside of good dist
+      //WE NEED 78 for alphabet AND 10 (90) for nums
+      //THERE DOES NOT EXIST A LCM < 100
+      console.log("shifting char: " + char + " with shift: " + shift);
+      let res = this.shiftChar(char, shift, right);
+      if (res === null) {
+        //we have to reiterate in for loop
+        //yoinking the next padNumbers val
+        console.log("bad shift, reiterating...");
+        //we replay the index though to not skip any char from plaintext
+        i--;
+        
+      } else {
+        result += res;
+      }
+
+    } //end for
 
     return result;
   }
@@ -53,14 +72,18 @@ export class AppComponent {
     return char;
   }
 
-  private shiftAlphabeticChar(char: string, shift: number, right: boolean): string {
+  private shiftAlphabeticChar(char: string, shift: number, right: boolean): any {
     //TODO take out >=? 76 for even distribution
+    if (shift > 78) {
+      console.log("shift is outside alphabet even distribution bucket, recurring...");
+      return null
+    }
 
     console.log("starting shiftAlphabeticChar with char: " + char + " and shift: " + shift);
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'; // Hardcoded alphabet
     const charLower = char.toLowerCase();
     const index = alphabet.indexOf(charLower) + 1;
-    //idk if alphabet.indexOf is case-sensitive but I'm too lazy to check!
+    //add one for layman calcs
 
     console.log("index: " + index);
     console.log("charLower: " + charLower);
@@ -125,3 +148,4 @@ export class AppComponent {
 //letters are a-z inclusive
 //A is considered index 1 for ur own calcs
 //PHYSICALLY BURN KEY AFTER USE
+//OTP MUST BE LONGER THAN TEXT!!!!
