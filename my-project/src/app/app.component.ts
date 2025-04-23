@@ -25,14 +25,15 @@ export class AppComponent {
     let result = '';
     let padNumbers = pad.split(',').map(char => parseInt(char.trim(), 10)).filter(num => !isNaN(num));
 
-    var otp_offset = -1; //this is annoying ngl
+    var otp_offset = -1;
     //negative 1 so first iteration is 0
     //we are ignoring certain otp vals for distribution, and are simply going to next val
+    //this is a pretty barbaric way to do this, but i don't want to figure out a smarter way to do even distribution
     for (let i = 0; i < text.length; i++) {
       otp_offset++;
       let char = text[i];
       let shift = padNumbers[otp_offset % padNumbers.length] || 0;
-      //TODO WE NEED to account for shift amnt outside of good dist
+
       //WE NEED 78 for alphabet AND 10 (90) for nums
       //THERE DOES NOT EXIST A LCM < 100
       console.log("shifting char: " + char + " with shift: " + shift);
@@ -54,8 +55,7 @@ export class AppComponent {
   }
 
   private shiftChar(char: string, shift: number, right: boolean): string {
-    //TODO this set of functioncalls to shiftAlphabeticChar and shiftNumericChar
-    //could be called recursively to handle distribution
+
     //alphabet chars
     if (char.match(/[a-zA-Z]/)) {
       return this.shiftAlphabeticChar(char, shift, right);
@@ -66,14 +66,14 @@ export class AppComponent {
       return this.shiftNumericChar(char, shift, right);
     }
     
-    // return special chars
+    // return special chars (instead of encrypting)
     //TODO we COULD account for this (like hard ascii vals) 
-    // but that sounds hard and I don't want to do that
+    //but that sounds hard and I don't want to do that
     return char;
   }
 
   private shiftAlphabeticChar(char: string, shift: number, right: boolean): any {
-    //TODO take out >=? 76 for even distribution
+    //26 * 3 = 78
     if (shift > 78) {
       console.log("shift is outside alphabet even distribution bucket, recurring...");
       return null
@@ -121,12 +121,8 @@ export class AppComponent {
     const index = digits.indexOf(char);
     console.log("numIndex: " + index);
 
-    if (index === -1) return char; // If it's not a valid digit, return as is
-    //prob won't hit this but whatev
 
 
-    //can we just mod by 10 and that works?
-    //TODO does this work for big numbers??
     var new_shifted = 0; //just instantiate for now
     if (right) {
       new_shifted = (index + shift) % 10;
